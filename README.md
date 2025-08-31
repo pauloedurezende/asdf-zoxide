@@ -2,7 +2,9 @@
 
 # asdf-zoxide [![Build](https://github.com/pauloedurezende/asdf-zoxide/actions/workflows/build.yml/badge.svg)](https://github.com/pauloedurezende/asdf-zoxide/actions/workflows/build.yml) [![Lint](https://github.com/pauloedurezende/asdf-zoxide/actions/workflows/lint.yml/badge.svg)](https://github.com/pauloedurezende/asdf-zoxide/actions/workflows/lint.yml)
 
-[zoxide](https://github.com/ajeetdsouza/zoxide/wiki) plugin for the [asdf version manager](https://asdf-vm.com).
+[zoxide](https://github.com/ajeetdsouza/zoxide) plugin for the [asdf version manager](https://asdf-vm.com).
+
+A smarter cd command that remembers frequently used directories.
 
 </div>
 
@@ -15,10 +17,9 @@
 
 # Dependencies
 
-**TODO: adapt this section**
+- `bash`, `curl`, `tar`, and [POSIX utilities](https://pubs.opengroup.org/onlinepubs/9699919799/idx/utilities.html)
 
-- `bash`, `curl`, `tar`, and [POSIX utilities](https://pubs.opengroup.org/onlinepubs/9699919799/idx/utilities.html).
-- `SOME_ENV_VAR`: set this environment variable in your shell config to load the correct version of tool x.
+**Note:** This plugin downloads pre-compiled binaries from zoxide releases, making installation fast with no build dependencies required.
 
 # Install
 
@@ -39,8 +40,11 @@ asdf list-all zoxide
 # Install specific version
 asdf install zoxide latest
 
-# Set a version globally (on your ~/.tool-versions file)
-asdf global zoxide latest
+# Show installed versions
+asdf list zoxide
+
+# Set a version globally (in your home ~/.tool-versions file)
+asdf set -u zoxide latest
 
 # Now zoxide commands are available
 zoxide --version
