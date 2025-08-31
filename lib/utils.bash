@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for zoxide.
 GH_REPO="https://github.com/ajeetdsouza/zoxide"
 TOOL_NAME="zoxide"
 TOOL_TEST="zoxide --version"
@@ -14,7 +13,6 @@ fail() {
 
 curl_opts=(-fsSL)
 
-# NOTE: You might want to remove this if zoxide is not hosted on GitHub releases.
 if [ -n "${GITHUB_API_TOKEN:-}" ]; then
 	curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
 fi
@@ -52,12 +50,10 @@ get_platform() {
 list_github_tags() {
 	git ls-remote --tags --refs "$GH_REPO" |
 		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
+		sed 's/^v//'
 }
 
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if zoxide has other means of determining installable versions.
 	list_github_tags
 }
 
@@ -67,7 +63,6 @@ download_release() {
 	filename="$2"
 	platform="$(get_platform)"
 
-	# Construct the release URL for zoxide binary
 	url="$GH_REPO/releases/download/v${version}/zoxide-${version}-${platform}.tar.gz"
 
 	echo "* Downloading $TOOL_NAME release $version for platform $platform..."
