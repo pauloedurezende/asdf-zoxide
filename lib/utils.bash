@@ -24,6 +24,31 @@ sort_versions() {
 		LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
 }
 
+get_os() {
+	case "$(uname -s)" in
+	Darwin) echo "apple-darwin" ;;
+	Linux) echo "unknown-linux-musl" ;;
+	*) fail "Unsupported operating system: $(uname -s)" ;;
+	esac
+}
+
+get_arch() {
+	local arch
+	arch="$(uname -m)"
+	case "$arch" in
+	x86_64) echo "x86_64" ;;
+	aarch64 | arm64) echo "aarch64" ;;
+	*) fail "Unsupported architecture: $arch" ;;
+	esac
+}
+
+get_platform() {
+	local os arch
+	os="$(get_os)"
+	arch="$(get_arch)"
+	echo "${arch}-${os}"
+}
+
 list_github_tags() {
 	git ls-remote --tags --refs "$GH_REPO" |
 		grep -o 'refs/tags/.*' | cut -d/ -f3- |
@@ -37,14 +62,15 @@ list_all_versions() {
 }
 
 download_release() {
-	local version filename url
+	local version filename url platform
 	version="$1"
 	filename="$2"
+	platform="$(get_platform)"
 
-	# TODO: Adapt the release URL convention for zoxide
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	# Construct the release URL for zoxide binary
+	url="$GH_REPO/releases/download/v${version}/zoxide-${version}-${platform}.tar.gz"
 
-	echo "* Downloading $TOOL_NAME release $version..."
+	echo "* Downloading $TOOL_NAME release $version for platform $platform..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
 }
 
@@ -59,9 +85,16 @@ install_version() {
 
 	(
 		mkdir -p "$install_path"
-		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
 
-		# TODO: Assert zoxide executable exists.
+		# Copy the zoxide binary from download path
+		if [ -f "$ASDF_DOWNLOAD_PATH/zoxide" ]; then
+			cp "$ASDF_DOWNLOAD_PATH/zoxide" "$install_path/zoxide"
+			chmod +x "$install_path/zoxide"
+		else
+			fail "Expected zoxide binary not found in $ASDF_DOWNLOAD_PATH"
+		fi
+
+		# Verify the installation
 		local tool_cmd
 		tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
 		test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."
